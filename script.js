@@ -11,22 +11,47 @@ let currentHeartRateIndex = 0;
 const encryptedAccessToken =
   "c2stcHJvai1oU1lqSVZGYjZ3QS1XX2RkVHV1SlVmaDNzRDltRGhHUlU4cFlfMldZdEVlTXFNVHU4TjJ6V2tGcno0Y3paUGhhOC1PRGhEaS1TZ1QzQmxia0ZKUkJfT1RHelpnTGdKM2MteHhEeFF4OVhGMWFZMDR3U2xVRlhsbW9MNEdnOWw2bFB5bllWRjJmSTRTYmRzWFgyWWQwV1g5bUVjb0E=";
 
-// Establish WebSocket Connection to Realtime API
-import WebSocket from "ws";
+let ws;
 
-const url =
-  "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01";
-const ws = new WebSocket(url, {
-  headers: {
-    Authorization: "Bearer " + atob(encryptedAccessToken),
-    "OpenAI-Beta": "realtime=v1",
-  },
-});
+// Function to Establish WebSocket Connection to Realtime API
+function startWebSocketConnection() {
+  const url =
+    "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-10-01";
+  ws = new WebSocket(url, {
+    headers: {
+      Authorization: "Bearer " + atob(encryptedAccessToken),
+      "OpenAI-Beta": "realtime=v1",
+    },
+  });
 
-ws.on("open", function open() {
-  console.log("Connected to Realtime API.");
-  startMockHeartRateStream();
-});
+  ws.on("open", function open() {
+    console.log("Connected to Realtime API.");
+    document.getElementById("status").innerText = "Connected";
+    startMockHeartRateStream();
+  });
+
+  ws.on("message", function incoming(message) {
+    try {
+      const event = JSON.parse(message.toString());
+      if (event.type === "response.create") {
+        console.log("Response received:", event);
+        handleVoiceResponse(event);
+      }
+    } catch (error) {
+      console.error("Error parsing message:", error);
+    }
+  });
+
+  ws.on("error", function error(err) {
+    console.error("WebSocket error:", err);
+    document.getElementById("status").innerText = "Connection Error";
+  });
+
+  ws.on("close", function close() {
+    console.log("Disconnected from Realtime API.");
+    document.getElementById("status").innerText = "Disconnected";
+  });
+}
 
 // Function to Simulate Heart Rate Data Streaming
 function startMockHeartRateStream() {
@@ -57,19 +82,6 @@ function sendHeartRateUpdate(heartRate) {
     console.error("Error sending heart rate update:", error);
   }
 }
-
-// Handle Incoming Messages from the Realtime API
-ws.on("message", function incoming(message) {
-  try {
-    const event = JSON.parse(message.toString());
-    if (event.type === "response.create") {
-      console.log("Response received:", event);
-      handleVoiceResponse(event);
-    }
-  } catch (error) {
-    console.error("Error parsing message:", error);
-  }
-});
 
 // Function to Handle Voice Responses Based on Heart Rate
 function handleVoiceResponse(response) {
