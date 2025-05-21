@@ -9,7 +9,7 @@ let currentHeartRateIndex = 0;
 
 // Encrypted access token
 const encryptedAccessToken =
-  "c2stcHJvai1oU1lqSVZGYjZ3QS1XX2RkVHV1SlVmaDNzRDltRGhHUlU4cFlfMldZdEVlTXFNVHU4TjJ6V2tGcno0Y3paUGhhOC1PRGhEaS1TZ1QzQmxia0ZKUkJfT1RHelpnTGdKM2MteHhEeFF4OVhGMWFZMDR3U2xVRlhsbW9MNEdnOWw2bFB5bllWRjJmSTRTYmRzWFgyWWQwV1g5bUVjb0E=";
+  "";
 
 let ws;
 
